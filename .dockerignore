@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.sqlite3
+.env
+.venv/
+.git/
+.gitignore
+dist/
+build/
+.mypy_cache/
+.pytest_cache/
+coverage/
+uploads/
+logs/
+rosa_function_output/

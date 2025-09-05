@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.core.logging import setup_logging
+
 from app.api.v1.router import api_router
 
 logger = setup_logging()
@@ -29,12 +30,3 @@ app.include_router(api_router)
 @app.get("/")
 def root():
     return {"ok": True, "message": "backend-user up"}
-
-@app.on_event("startup")
-async def _print_routes_on_worker():
-    logger.info("=== EFFECTIVE ROUTES (worker) ===")
-    for r in app.router.routes:
-        try:
-            logger.info("ROUTE: %s %s", ",".join(sorted(r.methods or [])), r.path)
-        except Exception:
-            pass
