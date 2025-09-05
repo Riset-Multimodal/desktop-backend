@@ -25,7 +25,7 @@ COPY migrations ./migrations
 COPY app ./app
 
 # Entrypoint (alembic upgrade + start uvicorn)
-COPY docker/entrypoint.sh /entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 3001
