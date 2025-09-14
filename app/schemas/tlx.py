@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from pydantic import BaseModel, EmailStr, conint
 from app.models.tlx import TlxFactor  # pakai enum yang sama
 
