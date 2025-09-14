@@ -61,12 +61,12 @@ class TlxResponse(Base):
     likert_frustration:     Mapped[int] = mapped_column(SmallInteger, nullable=False)
 
     __table_args__ = (
-        CheckConstraint("likert_mental BETWEEN 1 AND 10", name="ck_likert_mental"),
-        CheckConstraint("likert_physical BETWEEN 1 AND 10", name="ck_likert_physical"),
-        CheckConstraint("likert_temporal BETWEEN 1 AND 10", name="ck_likert_temporal"),
-        CheckConstraint("likert_performance_raw BETWEEN 1 AND 10", name="ck_likert_performance_raw"),
-        CheckConstraint("likert_effort BETWEEN 1 AND 10", name="ck_likert_effort"),
-        CheckConstraint("likert_frustration BETWEEN 1 AND 10", name="ck_likert_frustration"),
+        CheckConstraint("likert_mental BETWEEN 1 AND 100", name="ck_likert_mental"),
+        CheckConstraint("likert_physical BETWEEN 1 AND 100", name="ck_likert_physical"),
+        CheckConstraint("likert_temporal BETWEEN 1 AND 100", name="ck_likert_temporal"),
+        CheckConstraint("likert_performance_raw BETWEEN 1 AND 100", name="ck_likert_performance_raw"),
+        CheckConstraint("likert_effort BETWEEN 1 AND 100", name="ck_likert_effort"),
+        CheckConstraint("likert_frustration BETWEEN 1 AND 100", name="ck_likert_frustration"),
         # kalau sudah pakai index=True di kolom, HAPUS index manual ini agar tidak dobel
         # Index("idx_tlx_response_user_email", "user_email"),
     )

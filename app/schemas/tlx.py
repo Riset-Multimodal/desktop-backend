@@ -25,12 +25,12 @@ class TlxCreate(BaseModel):
     pair_q15: TlxFactor
 
     # Likert 1..10
-    likert_mental:          conint(ge=1, le=10)
-    likert_physical:        conint(ge=1, le=10)
-    likert_temporal:        conint(ge=1, le=10)
-    likert_performance_raw: conint(ge=1, le=10)
-    likert_effort:          conint(ge=1, le=10)
-    likert_frustration:     conint(ge=1, le=10)
+    likert_mental:          conint(ge=1, le=100)
+    likert_physical:        conint(ge=1, le=100)
+    likert_temporal:        conint(ge=1, le=100)
+    likert_performance_raw: conint(ge=1, le=100)
+    likert_effort:          conint(ge=1, le=100)
+    likert_frustration:     conint(ge=1, le=100)
 
 
 # Response body

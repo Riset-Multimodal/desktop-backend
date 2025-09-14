@@ -46,12 +46,12 @@ def upgrade() -> None:
     sa.Column('likert_performance_raw', sa.SmallInteger(), nullable=False),
     sa.Column('likert_effort', sa.SmallInteger(), nullable=False),
     sa.Column('likert_frustration', sa.SmallInteger(), nullable=False),
-    sa.CheckConstraint('likert_effort BETWEEN 1 AND 10', name='ck_likert_effort'),
-    sa.CheckConstraint('likert_frustration BETWEEN 1 AND 10', name='ck_likert_frustration'),
-    sa.CheckConstraint('likert_mental BETWEEN 1 AND 10', name='ck_likert_mental'),
-    sa.CheckConstraint('likert_performance_raw BETWEEN 1 AND 10', name='ck_likert_performance_raw'),
-    sa.CheckConstraint('likert_physical BETWEEN 1 AND 10', name='ck_likert_physical'),
-    sa.CheckConstraint('likert_temporal BETWEEN 1 AND 10', name='ck_likert_temporal'),
+    sa.CheckConstraint('likert_effort BETWEEN 1 AND 100', name='ck_likert_effort'),
+    sa.CheckConstraint('likert_frustration BETWEEN 1 AND 100', name='ck_likert_frustration'),
+    sa.CheckConstraint('likert_mental BETWEEN 1 AND 100', name='ck_likert_mental'),
+    sa.CheckConstraint('likert_performance_raw BETWEEN 1 AND 100', name='ck_likert_performance_raw'),
+    sa.CheckConstraint('likert_physical BETWEEN 1 AND 100', name='ck_likert_physical'),
+    sa.CheckConstraint('likert_temporal BETWEEN 1 AND 100', name='ck_likert_temporal'),
     sa.ForeignKeyConstraint(['user_email'], ['users.user_email'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
