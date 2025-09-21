@@ -27,3 +27,12 @@ class Keylog(Base):
     pause_count: Mapped[int | None] = mapped_column(Integer)
     mean_pause_duration_ms: Mapped[float | None] = mapped_column(Float)
     mean_burst_length: Mapped[float | None] = mapped_column(Float)
+
+    words_per_minute: Mapped[float | None] = mapped_column(Float)
+    typing_rhythm_consistency: Mapped[float | None] = mapped_column(Float)
+    mouse_speed: Mapped[float | None] = mapped_column(Float)
+    mouse_accuracy: Mapped[float | None] = mapped_column(Float)
+    mouse_jerkiness: Mapped[float | None] = mapped_column(Float)
+    raw_x_sequence: Mapped[str | None] = mapped_column(String)
+    raw_y_sequence: Mapped[str | None] = mapped_column(String)
+

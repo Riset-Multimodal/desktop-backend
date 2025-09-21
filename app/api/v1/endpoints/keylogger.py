@@ -49,6 +49,13 @@ async def receive_keylogger(payload: dict, db: Session = Depends(get_db)):
         pause_count=features.get("pause_count"),
         mean_pause_duration_ms=features.get("mean_pause_duration_ms"),
         mean_burst_length=features.get("mean_burst_length"),
+        words_per_minute=features.get("words_per_minute"),
+        typing_rhythm_consistency=features.get("typing_rhythm_consistency"),
+        mouse_speed=features.get("mouse_speed"),
+        mouse_accuracy=features.get("mouse_accuracy"),
+        mouse_jerkiness=features.get("mouse_jerkiness"),
+        raw_x_sequence=features.get("raw_x_sequence"),
+        raw_y_sequence=features.get("raw_y_sequence"),
     )
 
     db.add(row)
