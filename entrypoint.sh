@@ -8,4 +8,4 @@ if [ -n "$DATABASE_URL" ]; then
 fi
 
 echo "[entrypoint] Starting Uvicorn..."
-exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-3001}"
+exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-3001}" --workers 4
