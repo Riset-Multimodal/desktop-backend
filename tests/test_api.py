@@ -55,10 +55,14 @@ def test_questionnaire_atomic_and_scoped(client, auth, admin):
     assert body["tlx"]["likert_performance"] == 1
     assert body["nordic"]["nbm_27"] == 1 and body["nordic"]["total_score"] == 28
 
+    # 0 = "Tidak sakit" diterima
+    res = client.post("/nordic", headers=auth, json=_nordic(nbm_0=0))
+    assert res.status_code == 200, res.text
+
     # nordic invalid -> tidak ada TLX yang ikut tersimpan
     before = len(client.get("/tlx", headers=auth).json())
     res = client.post("/questionnaire", headers=auth, json={
-        "tlx": _tlx(), "nordic": _nordic(nbm_3=0), "validation": {"answer": "FOCUS_TASK"},
+        "tlx": _tlx(), "nordic": _nordic(nbm_3=5), "validation": {"answer": "FOCUS_TASK"},
     })
     assert res.status_code == 422
     assert len(client.get("/tlx", headers=auth).json()) == before

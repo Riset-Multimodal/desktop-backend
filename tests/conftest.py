@@ -19,7 +19,8 @@ def tmp_root(tmp_path_factory):
 
 @pytest.fixture(scope="session")
 def client(tmp_root):
-    os.environ["DATABASE_URL"] = f"sqlite:///{tmp_root / 'test.db'}"
+    # TEST_DATABASE_URL: jalankan test di DB yang sudah di-migrate (mis. Postgres kosong)
+    os.environ["DATABASE_URL"] = os.environ.get("TEST_DATABASE_URL") or f"sqlite:///{tmp_root / 'test.db'}"
     os.environ["JWT_SECRET"] = "test-secret"
     os.environ["SHARED_PASSWORD_HASH"] = bcrypt.hashpw(PASSWORD.encode(), bcrypt.gensalt(4)).decode()
     os.environ["ADMIN_API_KEY"] = ADMIN_KEY
