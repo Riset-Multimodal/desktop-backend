@@ -16,11 +16,6 @@ from .rosa_section_b import ROSASectionB, SectionBMeasurements
 from .rosa_section_c import ROSASectionC, SectionCMeasurements
 from .rosa_final_score import ROSAFinalScorer
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
-)
 logger = logging.getLogger(__name__)
 
 section_a_model = AdvancedROSASectionA()
@@ -64,7 +59,6 @@ def analyze_ergonomics_from_files(
         save_log: bool = False
 ) -> Optional[Dict]:
     try:
-        print("--- DEBUG: Menjalankan versi kode TERBARU. Jika Anda melihat pesan ini, file sudah benar. ---")
         img_front = cv2.imdecode(np.frombuffer(file_front, np.uint8), cv2.IMREAD_COLOR)
         img_side = cv2.imdecode(np.frombuffer(file_side, np.uint8), cv2.IMREAD_COLOR)
         img_overhead = cv2.imdecode(np.frombuffer(file_overhead, np.uint8), cv2.IMREAD_COLOR)
@@ -175,6 +169,7 @@ def analyze_ergonomics_from_files(
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
         path_front = 'front_2.jpeg'
         path_side = 'side_2.jpeg'

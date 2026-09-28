@@ -1,10 +1,12 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr, conint
 from app.models.tlx import TlxFactor  # pakai enum yang sama
 
 # Request body untuk membuat TLX response
 class TlxCreate(BaseModel):
-    user_email: EmailStr
+    # opsional: email diambil dari token login; kalau diisi harus sama
+    user_email: Optional[EmailStr] = None
 
     # 15 pasangan
     pair_q1:  TlxFactor
@@ -23,7 +25,7 @@ class TlxCreate(BaseModel):
     pair_q14: TlxFactor
     pair_q15: TlxFactor
 
-    # Likert 1..10
+    # Likert 1..100
     likert_mental:          conint(ge=1, le=100)
     likert_physical:        conint(ge=1, le=100)
     likert_temporal:        conint(ge=1, le=100)

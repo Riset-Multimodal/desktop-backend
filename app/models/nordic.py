@@ -46,14 +46,12 @@ class NordicBodymapResponse(Base):
       24 pergelangan kaki kiri
       25 pergelangan kaki kanan
       26 kaki kiri
-    (Jika kamu butuh “kaki kanan” terpisah, tambah nbm_27; tabel di gambar berhenti di 26.)
+      27 kaki kanan (nullable: response lama sebelum kolom ini ada bernilai NULL)
     """
 
     __tablename__ = "nordic_bodymap_response"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-
-    from sqlalchemy import String, ForeignKey
 
     user_email: Mapped[str] = mapped_column(
         String,
@@ -94,6 +92,7 @@ class NordicBodymapResponse(Base):
     nbm_24: Mapped[int] = mapped_column(SmallInteger, nullable=False)  # pergelangan kaki kiri
     nbm_25: Mapped[int] = mapped_column(SmallInteger, nullable=False)  # pergelangan kaki kanan
     nbm_26: Mapped[int] = mapped_column(SmallInteger, nullable=False)  # kaki kiri
+    nbm_27: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)  # kaki kanan
 
     __table_args__ = (
         # validasi skala 1..4 untuk semua kolom
@@ -124,6 +123,7 @@ class NordicBodymapResponse(Base):
         CheckConstraint("nbm_24 BETWEEN 1 AND 4"),
         CheckConstraint("nbm_25 BETWEEN 1 AND 4"),
         CheckConstraint("nbm_26 BETWEEN 1 AND 4"),
+        CheckConstraint("nbm_27 BETWEEN 1 AND 4", name="ck_nbm_27"),
         Index("idx_nbm_response_user_email", "user_email"),
     )
 
@@ -131,5 +131,5 @@ class NordicBodymapResponse(Base):
     @property
     def total_score(self) -> int:
         return sum(
-            getattr(self, f"nbm_{i}") for i in range(27)
+            getattr(self, f"nbm_{i}") or 0 for i in range(28)
         )

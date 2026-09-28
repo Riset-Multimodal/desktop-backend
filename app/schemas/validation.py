@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from enum import Enum
 from datetime import datetime
+from typing import Optional
 
 
 class ValidationAnswerEnum(str, Enum):
@@ -10,7 +11,8 @@ class ValidationAnswerEnum(str, Enum):
 
 
 class ValidationCreate(BaseModel):
-    user_email: EmailStr
+    # opsional: email diambil dari token login; kalau diisi harus sama
+    user_email: Optional[EmailStr] = None
     answer: ValidationAnswerEnum
 
 
@@ -20,5 +22,4 @@ class ValidationOut(BaseModel):
     answer: ValidationAnswerEnum
     submitted_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = dict(from_attributes=True)
