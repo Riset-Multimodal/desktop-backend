@@ -52,7 +52,7 @@ class TlxResponse(Base):
     pair_q14: Mapped[TlxFactor] = mapped_column(TlxFactorEnum, nullable=False)
     pair_q15: Mapped[TlxFactor] = mapped_column(TlxFactorEnum, nullable=False)
 
-    # likert 1..10 (ingat: SmallInteger + constraint)
+    # likert 1..100 (ingat: SmallInteger + constraint)
     likert_mental:          Mapped[int] = mapped_column(SmallInteger, nullable=False)
     likert_physical:        Mapped[int] = mapped_column(SmallInteger, nullable=False)
     likert_temporal:        Mapped[int] = mapped_column(SmallInteger, nullable=False)
@@ -73,4 +73,5 @@ class TlxResponse(Base):
 
     @property
     def likert_performance(self) -> int:
-        return 11 - int(self.likert_performance_raw)
+        # skala dibalik: 1..100 -> 100..1
+        return 101 - int(self.likert_performance_raw)

@@ -7,9 +7,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# System deps (opencv/mediapipe & psycopg2 runtime)
+# System deps runtime (opencv/mediapipe & psycopg2). Semua paket Python
+# tersedia sebagai wheel, jadi compiler (build-essential/gcc) tidak perlu.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential gcc \
     libgl1 libglib2.0-0 libxext6 libsm6 \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*

@@ -1,14 +1,21 @@
 # app/services/db_helpers.py
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.models import User
 
 def get_or_create_user(db: Session, email: str) -> User:
     user = db.scalar(select(User).where(User.user_email == email))
-    if not user:
-        user = User(user_email=email)
-        db.add(user)
-        db.flush()
+    if user:
+        return user
+    # Request paralel (mis. keylogger + posture) bisa sama-sama membuat user baru;
+    # pakai savepoint supaya yang kalah cukup membaca ulang, bukan 500.
+    try:
+        with db.begin_nested():
+            user = User(user_email=email)
+            db.add(user)
+    except IntegrityError:
+        user = db.scalar(select(User).where(User.user_email == email))
     return user
 
 # OPTIONAL: casting ringan untuk numeric/bool jika perlu

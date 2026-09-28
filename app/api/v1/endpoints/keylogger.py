@@ -1,62 +1,57 @@
 # app/api/v1/endpoints/keylogger.py
-from fastapi import APIRouter, HTTPException, Depends
+from typing import Any, Optional
+
+from fastapi import APIRouter, Depends
 from datetime import datetime
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.services import storage
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_email, ensure_same_email
 from app.models import Keylog
 from app.services.db_helpers import get_or_create_user
+from app.utils.files import safe_path_segment
 
 router = APIRouter()
 
+_FEATURE_COLUMNS = (
+    "type", "keystroke_count", "left_click_count", "right_click_count", "scroll_up", "scroll_down",
+    "space_count", "error_rate", "mean_dwell_time_ms", "std_dev_dwell_time_ms", "mean_flight_time_ms",
+    "std_dev_flight_time_ms", "mean_digraph_time_ms", "std_dev_digraph_time_ms", "pause_count",
+    "mean_pause_duration_ms", "mean_burst_length", "words_per_minute", "typing_rhythm_consistency",
+    "mouse_speed", "mouse_accuracy", "mouse_jerkiness", "raw_x_sequence", "raw_y_sequence",
+)
+
+
+class KeyloggerPayload(BaseModel):
+    email: Optional[str] = None
+    features: dict[str, Any] = Field(default_factory=dict)
+    timestamp: Optional[str] = None
+
+
+# `def` (bukan async) supaya query DB & tulis file yang blocking jalan di threadpool,
+# tidak menahan event loop.
 @router.post("/keylogger")
-async def receive_keylogger(payload: dict, db: Session = Depends(get_db)):
-    if not payload:
-        raise HTTPException(status_code=400, detail="Payload kosong")
-    email = payload.get("email")
-    if not email or "@" not in email:
-        raise HTTPException(status_code=400, detail="Email diperlukan")
+def receive_keylogger(
+    payload: KeyloggerPayload,
+    db: Session = Depends(get_db),
+    email: str = Depends(get_current_email),
+):
+    ensure_same_email(email, payload.email)
+    record = payload.model_dump()
+    record["email"] = email
 
     # simpan JSONL (opsional)
-    folder = f"{email}_keylogger"
+    folder = f"{safe_path_segment(email)}_keylogger"
     log_path = settings.LOGS_DIR / folder / f"log_{datetime.now().strftime('%Y-%m-%d')}.jsonl"
-    storage.append_jsonl(log_path, payload)
+    storage.append_jsonl(log_path, record)
 
     # === SIMPAN KE DB ===
     get_or_create_user(db, email=email)
 
-    # Map payload → kolom Keylog (gunakan .get dengan default None)
-    features = payload.get("features", {})
-
-    row = Keylog(
-        user_email=payload.get("email"),
-        type=features.get("type"),
-        keystroke_count=features.get("keystroke_count"),
-        left_click_count=features.get("left_click_count"),
-        right_click_count=features.get("right_click_count"),
-        scroll_up=features.get("scroll_up"),
-        scroll_down=features.get("scroll_down"),
-        space_count=features.get("space_count"),
-        error_rate=features.get("error_rate"),
-        mean_dwell_time_ms=features.get("mean_dwell_time_ms"),
-        std_dev_dwell_time_ms=features.get("std_dev_dwell_time_ms"),
-        mean_flight_time_ms=features.get("mean_flight_time_ms"),
-        std_dev_flight_time_ms=features.get("std_dev_flight_time_ms"),
-        mean_digraph_time_ms=features.get("mean_digraph_time_ms"),
-        std_dev_digraph_time_ms=features.get("std_dev_digraph_time_ms"),
-        pause_count=features.get("pause_count"),
-        mean_pause_duration_ms=features.get("mean_pause_duration_ms"),
-        mean_burst_length=features.get("mean_burst_length"),
-        words_per_minute=features.get("words_per_minute"),
-        typing_rhythm_consistency=features.get("typing_rhythm_consistency"),
-        mouse_speed=features.get("mouse_speed"),
-        mouse_accuracy=features.get("mouse_accuracy"),
-        mouse_jerkiness=features.get("mouse_jerkiness"),
-        raw_x_sequence=features.get("raw_x_sequence"),
-        raw_y_sequence=features.get("raw_y_sequence"),
-    )
+    features = payload.features
+    row = Keylog(user_email=email, **{col: features.get(col) for col in _FEATURE_COLUMNS})
 
     db.add(row)
     db.commit()
@@ -65,7 +60,7 @@ async def receive_keylogger(payload: dict, db: Session = Depends(get_db)):
     return {
         "status":"success",
         "data":{
-            "saved_to": str(log_path),
+            "saved_to": str(log_path.relative_to(settings.STORAGE_ROOT)),
             "db": {"keylog_event_id": row.id}
         }
     }

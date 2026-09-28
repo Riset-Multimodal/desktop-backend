@@ -18,7 +18,7 @@ from .base import Base  # pakai Base kamu
 class NordicBodymapResponse(Base):
     """
     1 row = 1 kali pengisian Nordic Body Map.
-    Kolom nbm_0..nbm_26 = tingkat keluhan (1..4) sesuai urutan di FE:
+    Kolom nbm_0..nbm_27 = tingkat keluhan (0 = tidak sakit, 1..4 = ringan..sangat berat) sesuai urutan di FE:
       0  leher atas
       1  leher bawah
       2  bahu kiri
@@ -46,14 +46,12 @@ class NordicBodymapResponse(Base):
       24 pergelangan kaki kiri
       25 pergelangan kaki kanan
       26 kaki kiri
-    (Jika kamu butuh “kaki kanan” terpisah, tambah nbm_27; tabel di gambar berhenti di 26.)
+      27 kaki kanan (nullable: response lama sebelum kolom ini ada bernilai NULL)
     """
 
     __tablename__ = "nordic_bodymap_response"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-
-    from sqlalchemy import String, ForeignKey
 
     user_email: Mapped[str] = mapped_column(
         String,
@@ -94,36 +92,11 @@ class NordicBodymapResponse(Base):
     nbm_24: Mapped[int] = mapped_column(SmallInteger, nullable=False)  # pergelangan kaki kiri
     nbm_25: Mapped[int] = mapped_column(SmallInteger, nullable=False)  # pergelangan kaki kanan
     nbm_26: Mapped[int] = mapped_column(SmallInteger, nullable=False)  # kaki kiri
+    nbm_27: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)  # kaki kanan
 
     __table_args__ = (
-        # validasi skala 1..4 untuk semua kolom
-        CheckConstraint("nbm_0  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_1  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_2  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_3  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_4  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_5  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_6  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_7  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_8  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_9  BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_10 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_11 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_12 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_13 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_14 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_15 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_16 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_17 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_18 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_19 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_20 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_21 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_22 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_23 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_24 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_25 BETWEEN 1 AND 4"),
-        CheckConstraint("nbm_26 BETWEEN 1 AND 4"),
+        # validasi skala 0..4 untuk semua kolom (0 = tidak sakit)
+        *(CheckConstraint(f"nbm_{i} BETWEEN 0 AND 4", name=f"ck_nbm_{i}") for i in range(28)),
         Index("idx_nbm_response_user_email", "user_email"),
     )
 
@@ -131,5 +104,5 @@ class NordicBodymapResponse(Base):
     @property
     def total_score(self) -> int:
         return sum(
-            getattr(self, f"nbm_{i}") for i in range(27)
+            getattr(self, f"nbm_{i}") or 0 for i in range(28)
         )
